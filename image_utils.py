@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import torchvision.transforms as transforms
+import torch
 
 def redimensionar_com_preenchimento(im, nova_forma=(640, 640), color=(114, 114, 114), scaleup=True):
     # Redimensiona imagem e preenche os espaços
@@ -26,8 +28,17 @@ def redimensionar_com_preenchimento(im, nova_forma=(640, 640), color=(114, 114, 
     im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # adiciona borda
     return im, ratio, (dw, dh)
 
-def recortar_imagem(img, start_x, start_y, width, height):
+def recortar_imagem(img, start_x, start_y, end_x, end_y):
     # recorta imagem
-    img_recortada = img[start_y:start_y+height, start_x:start_x+width]
+    img_recortada = img[start_y:end_y, start_x:end_x]
     
     return img_recortada
+
+def recortar_redimensionar_com_preenchimento(img, start_x, start_y, width, height, nova_forma=(640, 640), color=(114, 114, 114), scaleup=True):
+    return redimensionar_com_preenchimento(recortar_imagem(img, start_x, start_y, width, height), nova_forma, color, scaleup)
+
+def transform_to_tensor(img):
+    transform = transforms.ToTensor()
+    tensor = transform(img)
+    tensor = torch.unsqueeze(tensor, 0)
+    return tensor

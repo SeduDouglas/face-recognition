@@ -12,7 +12,7 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from yolov9 import ModelUtil
 import detect_from_image_data as detect_from_image_data
-from cv2_utils import recortar_imagem
+from image_utils import recortar_imagem
 
 video = r''
 weights=ROOT / 'model/yolov9-c-face.pt'

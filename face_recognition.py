@@ -4,7 +4,8 @@ import sys
 import os
 import torch
 from pathlib import Path
-import torchvision.transforms as transforms
+import rede_siamesa
+import chroma_facade
 
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLO root directory
@@ -13,25 +14,18 @@ if str(ROOT) not in sys.path:
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 from yolov9 import yolo_facade
-from cv2_utils import recortar_imagem, redimensionar_com_preenchimento
+from image_utils import redimensionar_com_preenchimento, recortar_redimensionar_com_preenchimento, transform_to_tensor
 
-video = r''
 weights=ROOT / 'model/yolov9-c-face.pt'
-weights_siamese=ROOT / 'model/trained_siamese_model.pt'
-
-device = torch.device('cpu')
 
 model = yolo_facade.load_model(weights)
-
-model_siamesa = torch.load(weights_siamese, weights_only=False, map_location=device)
-model_siamesa.eval()
+model_siamesa = rede_siamesa.load_model()
 imagem_base = cv2.imread('WIN_20241211_19_09_29_Pro.jpg')
 imagem_base_redimensionada = redimensionar_com_preenchimento(imagem_base, (128, 128))[0]
-transform = transforms.ToTensor()
+
 
 # Convert the image to PyTorch tensor
-tensor = transform(imagem_base_redimensionada)
-tensor = torch.unsqueeze(tensor, 0)
+tensor = transform_to_tensor(imagem_base_redimensionada)
 embeding_imagem_base = model_siamesa(tensor)
 print(embeding_imagem_base)
 
@@ -49,14 +43,13 @@ while rval:
     for *xyxy, conf, cls in face_results:
         x1, y1, x2, y2 = int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
         h, w = y2 - y1, x2 - x1
-        frame_recortado = recortar_imagem(frame, x1, y1, w, h)
-        frame_redimensionado = redimensionar_com_preenchimento(frame_recortado, (128, 128))[0]
-        tensor = transform(frame_redimensionado)
-        tensor = torch.unsqueeze(tensor, 0)
+        frame_redimensionado = recortar_redimensionar_com_preenchimento(frame, x1, y1, x2, y2, (128, 128))[0]
+        tensor = transform_to_tensor(frame_redimensionado)
         embeding_frame_redimensionado = model_siamesa(tensor)
-        distancia = ((embeding_imagem_base-embeding_frame_redimensionado)**2).sum(axis=1)
-        print(distancia)
+        resultado = chroma_facade.buscar_proximos(embeding_frame_redimensionado.detach().numpy(), 10)
+        print(resultado)
         cvzone.cornerRect(frame, [x1, y1, w, h], l=9, rt=3)
+        cv2.putText(frame, resultado['metadatas'][0][0]['nome'],(x1,y2 - 5), cv2.FONT_HERSHEY_DUPLEX, 1,(255,0,255),2,cv2.LINE_AA)
 
     cv2.imshow("preview", frame)
     rval, frame = vc.read()
