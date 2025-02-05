@@ -10,7 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd())) 
 
-def load_model(weights_siamese = ROOT / 'model/trained_siamese_model.pt', device = 'cpu'):
-    model_siamesa = torch.load(weights_siamese, weights_only=False, map_location=device)
-    model_siamesa.eval()
-    return model_siamesa
+def load_model(siamese_weights = ROOT / 'model/trained_siamese_model.pt', device = 'cpu'):
+    siamese_model = torch.load(siamese_weights, weights_only=False, map_location=device)
+    siamese_model.eval()
+    return siamese_model
