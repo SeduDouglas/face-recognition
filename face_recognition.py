@@ -39,10 +39,10 @@ while rval:
         resized_frame = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)
         tensor = transform_to_tensor(resized_frame)
         resized_frame_embedding = siamese_model(tensor)
-        resultado = chroma_facade.buscar_proximos(resized_frame_embedding.detach().numpy(), 10)
+        resultado = chroma_facade.search_nearest(resized_frame_embedding.detach().numpy(), 10)
         print(resultado)
         cvzone.cornerRect(frame, [x1, y1, w, h], l=9, rt=3)
-        cv2.putText(frame, resultado['metadatas'][0][0]['nome'],(x1,y2 - 5), cv2.FONT_HERSHEY_DUPLEX, 1,(255,0,255),2,cv2.LINE_AA)
+        cv2.putText(frame, resultado['metadatas'][0][0]['name'],(x1,y2 - 5), cv2.FONT_HERSHEY_DUPLEX, 1,(255,0,255),2,cv2.LINE_AA)
 
     cv2.imshow("preview", frame)
     rval, frame = vc.read()

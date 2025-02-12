@@ -43,6 +43,11 @@ def register(embeddings, ids, names):
         ids=ids, 
     )
 
+def clean_collection():
+    client = chromadb.PersistentClient(path="/db")
+    if client.count_collections() > 0:
+        client.delete_collection(name="faces_collection")
+
 def remove(ids):
     client = chromadb.PersistentClient(path="/db")
 

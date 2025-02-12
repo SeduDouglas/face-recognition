@@ -15,7 +15,7 @@ def convert_to_training(origin, detiny):
 
         if os.path.isdir(item_path):
             folder_files = [f for f in os.listdir(item_path) if os.path.isfile(os.path.join(item_path, f))]
-            destiny_folder = os.path.join(destino, item)
+            destiny_folder = os.path.join(detiny, item)
             if not os.path.exists(destiny_folder):
                 os.makedirs(destiny_folder)
             for file in folder_files:
